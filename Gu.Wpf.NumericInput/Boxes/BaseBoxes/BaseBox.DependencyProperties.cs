@@ -1,4 +1,4 @@
-﻿namespace Gu.Wpf.NumericInput
+namespace Gu.Wpf.NumericInput
 {
     using System;
     using System.Collections.Generic;
@@ -9,66 +9,75 @@
     using System.Windows.Data;
 
     /// <summary>
-    /// DependencyProperties for <see cref="BaseBox"/>
+    /// DependencyProperties for <see cref="BaseBox"/>.
     /// </summary>
     public abstract partial class BaseBox
     {
         private static readonly DependencyPropertyKey HasFormattedViewPropertyKey = DependencyProperty.RegisterReadOnly(
-            "HasFormattedView",
+            nameof(HasFormattedView),
             typeof(bool),
             typeof(BaseBox),
             new PropertyMetadata(default(bool)));
 
+        /// <summary>Identifies the <see cref="HasFormattedView"/> dependency property.</summary>
         public static readonly DependencyProperty HasFormattedViewProperty = HasFormattedViewPropertyKey.DependencyProperty;
 
+        /// <summary>Identifies the <see cref="TextValueConverter"/> dependency property.</summary>
         public static readonly DependencyProperty TextValueConverterProperty = DependencyProperty.Register(
-            "TextValueConverter",
+            nameof(TextValueConverter),
             typeof(IValueConverter),
             typeof(BaseBox),
             new PropertyMetadata(default(IValueConverter), OnTextValueConverterChanged));
 
+        /// <summary>Identifies the <see cref="ValidationTrigger"/> dependency property.</summary>
         public static readonly DependencyProperty ValidationTriggerProperty = NumericBox.ValidationTriggerProperty.AddOwner(
             typeof(BaseBox),
             new FrameworkPropertyMetadata(ValidationTrigger.LostFocus, FrameworkPropertyMetadataOptions.Inherits, OnValidationTriggerChanged));
 
+        /// <summary>Identifies the <see cref="ValidationRules"/> dependency property.</summary>
         public static readonly DependencyProperty ValidationRulesProperty = DependencyProperty.Register(
-            "ValidationRules",
+            nameof(ValidationRules),
             typeof(IReadOnlyList<ValidationRule>),
             typeof(BaseBox),
             new PropertyMetadata(default(IReadOnlyList<ValidationRule>), OnValidationRulesChanged));
 
         private static readonly DependencyPropertyKey FormattedTextPropertyKey = DependencyProperty.RegisterReadOnly(
-            "FormattedText",
+            nameof(FormattedText),
             typeof(string),
             typeof(BaseBox),
             new PropertyMetadata(default(string)));
 
+        /// <summary>Identifies the <see cref="FormattedText"/> dependency property.</summary>
         public static readonly DependencyProperty FormattedTextProperty = FormattedTextPropertyKey.DependencyProperty;
 
         private static readonly DependencyPropertyKey IsValidationDirtyPropertyKey = DependencyProperty.RegisterReadOnly(
-            "IsValidationDirty",
+            nameof(IsValidationDirty),
             typeof(bool),
             typeof(BaseBox),
             new PropertyMetadata(
                 BooleanBoxes.False,
                 OnIsValidationDirtyChanged));
 
+        /// <summary>Identifies the <see cref="IsValidationDirty"/> dependency property.</summary>
         internal static readonly DependencyProperty IsValidationDirtyProperty = IsValidationDirtyPropertyKey.DependencyProperty;
 
         private static readonly DependencyPropertyKey IsFormattingDirtyPropertyKey = DependencyProperty.RegisterReadOnly(
-            "IsFormattingDirty",
+            nameof(IsFormattingDirty),
             typeof(bool),
             typeof(BaseBox),
             new PropertyMetadata(
                 BooleanBoxes.False,
                 OnIsFormattingDirtyChanged));
 
+        /// <summary>Identifies the <see cref="IsFormattingDirty"/> dependency property.</summary>
         internal static readonly DependencyProperty IsFormattingDirtyProperty = IsFormattingDirtyPropertyKey.DependencyProperty;
 
+        /// <summary>Identifies the <see cref="StringFormat"/> dependency property.</summary>
         public static readonly DependencyProperty StringFormatProperty = NumericBox.StringFormatProperty.AddOwner(
             typeof(BaseBox),
             new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.Inherits, OnStringFormatChanged));
 
+        /// <summary>Identifies the <see cref="Culture"/> dependency property.</summary>
         public static readonly DependencyProperty CultureProperty = NumericBox.CultureProperty.AddOwner(
             typeof(BaseBox),
             new FrameworkPropertyMetadata(
@@ -76,26 +85,31 @@
                 FrameworkPropertyMetadataOptions.Inherits,
                 OnCultureChanged));
 
+        /// <summary>Identifies the <see cref="RegexPattern"/> dependency property.</summary>
         public static readonly DependencyProperty RegexPatternProperty = DependencyProperty.Register(
-            "RegexPattern",
+            nameof(RegexPattern),
             typeof(string),
             typeof(BaseBox),
             new PropertyMetadata(default(string), OnRegexPatternChanged));
 
+        /// <summary>Identifies the <see cref="TextSource"/> dependency property.</summary>
         protected static readonly DependencyPropertyKey TextSourcePropertyKey = DependencyProperty.RegisterReadOnly(
-            "TextSource",
+            nameof(TextSource),
             typeof(TextSource),
             typeof(BaseBox),
-            new PropertyMetadata(TextSource.None, OnTextSourceChanged));
+            new PropertyMetadata(TextSource.None));
 
+        /// <summary>Identifies the <see cref="TextSource"/> dependency property.</summary>
         public static readonly DependencyProperty TextSourceProperty = TextSourcePropertyKey.DependencyProperty;
 
+        /// <summary>Identifies the <see cref="Status"/> dependency property.</summary>
         internal static readonly DependencyPropertyKey StatusPropertyKey = DependencyProperty.RegisterReadOnly(
-            "Status",
+            nameof(Status),
             typeof(Status),
             typeof(BaseBox),
-            new PropertyMetadata(Status.Idle, OnStatusChanged));
+            new PropertyMetadata(Status.Idle));
 
+        /// <summary>Identifies the <see cref="Status"/> dependency property.</summary>
         internal static readonly DependencyProperty StatusProperty = StatusPropertyKey.DependencyProperty;
 
         static BaseBox()
@@ -118,6 +132,11 @@
             set => this.SetValue(TextValueConverterProperty, value);
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating when validation is performed, the default is LostFocus to be consistent with vanilla WPF TextBox
+        /// Setting ValidationTrigger="PropertyChanged" validates as you type even if the binding has UpdateSourceTrigger=LostFocus.
+        /// Inherits so can be set on for example a Window.
+        /// </summary>
         public ValidationTrigger ValidationTrigger
         {
             get => (ValidationTrigger)this.GetValue(ValidationTriggerProperty);
@@ -152,7 +171,7 @@
 
         /// <summary>
         /// Gets or sets the  culture for the control.
-        /// The control has an explicit culture and does not use <see cref="System.Threading.Thread.CurrentUICulture"/>
+        /// The control has an explicit culture and does not use <see cref="System.Threading.Thread.CurrentUICulture"/>.
         /// </summary>
         [Category(nameof(NumericBox))]
         [Browsable(true)]
@@ -172,7 +191,7 @@
         }
 
         /// <summary>
-        /// Gets or sets a regex pattern for validation
+        /// Gets or sets a regex pattern for validation.
         /// </summary>
         [Category(nameof(NumericBox))]
         [Browsable(true)]
@@ -290,16 +309,6 @@
             {
                 box.IsValidationDirty = true;
             }
-        }
-
-        private static void OnStatusChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Debug.WriteLine(e);
-        }
-
-        private static void OnTextSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            Debug.WriteLine(e);
         }
     }
 }

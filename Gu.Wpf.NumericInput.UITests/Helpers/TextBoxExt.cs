@@ -1,13 +1,12 @@
 namespace Gu.Wpf.NumericInput.UITests
 {
-    using TestStack.White.UIItems;
-    using TestStack.White.UIItems.WPFUIItems;
+    using Gu.Wpf.UiAutomation;
 
     public static class TextBoxExt
     {
-        public static Label FormattedView(this TextBox baseBox)
+        public static TextBlock FormattedView(this TextBox baseBox)
         {
-            return baseBox.Get<Label>("PART_FormattedText");
+            return baseBox.FindTextBlock("PART_FormattedText");
         }
     }
 }

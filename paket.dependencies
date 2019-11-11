@@ -1,9 +1,12 @@
 source http://www.nuget.org/api/v2/
-framework >= net45
 
 group Analyzers
-  source http://www.nuget.org/api/v2/
-  framework >= net45
+  source http://nuget.org/api/v2
+  nuget AsyncUsageAnalyzers
+  nuget IDisposableAnalyzers
+  nuget Microsoft.CodeAnalysis.PublicApiAnalyzers
+  nuget ReflectionAnalyzers prerelease
+  nuget PropertyChangedAnalyzers
   nuget StyleCop.Analyzers
   nuget WpfAnalyzers
   nuget Gu.Analyzers
@@ -11,13 +14,17 @@ group Analyzers
 
 group Test
   source http://www.nuget.org/api/v2/
-  framework >= net45
+  storage: none
+  nuget Microsoft.NET.Test.Sdk
   nuget NUnit
-  nuget TestStack.White
-  nuget Castle.Core 3.3.0
+  nuget NUnit3TestAdapter
+  nuget Gu.Wpf.UiAutomation
 
 group Demo
   source http://www.nuget.org/api/v2/
-  framework >= net45
   nuget Gu.PropertyGrid
   nuget Gu.Wpf.AutoRowGrid
+
+group Build
+  source http://www.nuget.org/api/v2/
+  nuget SourceLink

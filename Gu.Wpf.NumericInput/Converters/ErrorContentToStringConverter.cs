@@ -1,18 +1,18 @@
-﻿namespace Gu.Wpf.NumericInput
+namespace Gu.Wpf.NumericInput
 {
     using System;
     using System.Globalization;
     using System.Windows.Controls;
     using System.Windows.Data;
 
+    [ValueConversion(typeof(ValidationError), typeof(string))]
     public sealed class ErrorContentToStringConverter : IValueConverter
     {
         public static readonly ErrorContentToStringConverter Default = new ErrorContentToStringConverter();
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var error = value as ValidationError;
-            if (error != null)
+            if (value is ValidationError error)
             {
                 var result = error.ErrorContent as ValidationResult;
                 if (result != null)
@@ -28,7 +28,7 @@
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotSupportedException($"{this.GetType().Name} does not support use in bindings with Mode = TwoWay.");
+            throw new NotSupportedException($"{typeof(ErrorContentToStringConverter).Name} does not support use in bindings with Mode = TwoWay.");
         }
     }
 }

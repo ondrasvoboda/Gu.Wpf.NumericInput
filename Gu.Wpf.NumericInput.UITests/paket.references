@@ -1,12 +1,18 @@
 group Analyzers
-  JetBrains.Annotations
+  AsyncUsageAnalyzers
+  IDisposableAnalyzers
+  PropertyChangedAnalyzers
+  ReflectionAnalyzers
   StyleCop.Analyzers
   WpfAnalyzers
   Gu.Analyzers
+  JetBrains.Annotations
 
 group Test
+  Microsoft.NET.Test.Sdk
+  NUnit3TestAdapter
   NUnit
-  TestStack.White
+  Gu.Wpf.UiAutomation
 
 group Demo
   Gu.PropertyGrid

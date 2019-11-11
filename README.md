@@ -1,6 +1,8 @@
 # Gu.Wpf.NumericInput
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md) [![NuGet](https://img.shields.io/nuget/v/Gu.Wpf.NumericInput.svg)](https://www.nuget.org/packages/Gu.Wpf.NumericInput/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+ [![NuGet](https://img.shields.io/nuget/v/Gu.Wpf.NumericInput.svg)](https://www.nuget.org/packages/Gu.Wpf.NumericInput/)
 [![Build status](https://ci.appveyor.com/api/projects/status/e0nwl8lha4nsoxq7/branch/master?svg=true)](https://ci.appveyor.com/project/JohanLarsson/gu-wpf-numericinput/branch/master)
+[![Build Status](https://dev.azure.com/guorg/Gu.Wpf.NumericInput/_apis/build/status/GuOrg.Gu.Wpf.NumericInput?branchName=master)](https://dev.azure.com/guorg/Gu.Wpf.NumericInput/_build/latest?definitionId=11&branchName=master)
 [![Join the chat at https://gitter.im/JohanLarsson/Gu.Wpf.NumericInput](https://badges.gitter.im/JohanLarsson/Gu.Wpf.NumericInput.svg)](https://gitter.im/JohanLarsson/Gu.Wpf.NumericInput?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Textboxes for numeric input in WPF.
@@ -68,14 +70,15 @@ Bind the `Value`property of the boxes like this:
     <numeric:DoubleBox Value="{Binding Value,
                                        ValidatesOnNotifyDataErrors=True}" 
                        CanValueBeNull="{Binding CanValueBeNull}"
-					   ValidationTrigger="PropertyChanged"
+                       ValidationTrigger="PropertyChanged"
                        MaxValue="10"
                        MinValue="-10"
                        NumberStyles="AllowDecimalPoint,AllowLeadingSign"
                        RegexPattern="\1\d+(\.2\d+)"
                        StringFormat="N2"
-					   AllowSpinners="True"
-					   Increment="{Binding Increment}"/>
+                       AllowSpinners="True"
+                       SpinUpdateMode="PropertyChanged"
+                       Increment="{Binding Increment}"/>
 </numeric:SpinnerDecorator>
 ```
 
@@ -95,7 +98,7 @@ Bind the `Value`property of the boxes like this:
 
 ## 3.1. ValidationTrigger
 Control when validation is performed, the default is `LostFocus` to be consistent with vanilla WPF `TextBox`
-Setting `ValidationTrigger="PropertyChanged"` validates as you type even if the binding has `UpdateSourceTrigger=LostFocus.`
+Setting `ValidationTrigger="PropertyChanged"` validates as you type even if the binding has `UpdateSourceTrigger=LostFocus`.
 Available as inheriting attached property: `NumericBox.ValidationTrigger`
 
 ## 3.2. CanValueBeNull
@@ -140,10 +143,21 @@ Available as inheriting attached property: `NumericBox.Culture`
 ## 4.1. NumberStyles
 The `NumberStyles` used when parsing and formatting the value.
 
+```xaml
+<numeric:DoubleBox NumberStyles="AllowDecimalPoint, AllowLeadingSign"
+                   Value="{Binding Value}" />
+```
+
 ## 4.2 StringFormat
 The string format used in the formatted view.
 
 Available as inheriting attached property: `NumericBox.StringFormat`
+
+```xaml
+<numeric:DoubleBox Culture="sv-se"
+                   StringFormat="#,0.00"
+                   Value="{Binding Value}" />
+```
 
 ## 4.3 DecimalDigits
 `DecimalDigits="3"` sets stringformat to `F3` which means the value will always have three digits.
@@ -174,7 +188,13 @@ If the value is 9.5 and `Increment="1"`and `Max="10"` one click on increment wil
 ## 5.2. AllowSpinners
 Controls if spinners are visible assuming the control is wrapped in a `SpinnerDecorator`
 
-## 5.3. IncrementCommand and DecrementCommand
+## 5.3. SpinUpdateMode
+Controls how the `IncreaseCommand` and the `DecreaseCommand`behaves.
+The default is `AsBinding` meaning the value updates using the `UpdateSourceTrigger` specified in the binding. Default is lostfocus.
+If set to `PropertyChanged` the binding source will be updated at each click even if the binding has `UpdateSourceTrigger = LostFocus`
+This property inherits so it can be set for example on the `Window` ex: `numericInput:NumericBox.SpinUpdateMode = "PropertyChanged"`
+
+## 5.4. IncrementCommand and DecrementCommand
 The boxes exposes two command for incrementing and decrementing the current value with `Increment` clicking changes the text so it is undoable.
 
 
@@ -192,11 +212,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.Culture="sv-se">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.2. NumericBox.ValidationTrigger
@@ -210,11 +230,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.ValidationTrigger="PropertyChanged">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.3. NumericBox.CanValueBeNull
@@ -228,11 +248,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.CanValueBeNull="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.4. NumericBox.NumberStyles
@@ -246,11 +266,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.NumberStyles="AllowDecimalPoint, AllowLeadingSign">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.5. NumericBox.StringFormat
@@ -264,11 +284,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.StringFormat="F2">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.6. NumericBox.DecimalDigits
@@ -282,11 +302,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.DecimalDigits="-2">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.1.7. NumericBox.AllowSpinners
@@ -300,11 +320,11 @@ Sample:
              ...
              xmlns:numeric="http://gu.se/NumericInput">
     <Grid numeric:NumericBox.AllowSpinners="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <numeric:DoubleBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <numeric:DoubleBox .../>
+        ...
+    </Grid>
 ```
 
 ## 5.2. Gu.Wpf.NumericInput.Select.TextBox
@@ -319,11 +339,11 @@ Sample:
              ...
              xmlns:select="http://gu.se/Select">
     <Grid select:TextBox.SelectAllOnGotKeyboardFocus="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <TextBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <TextBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.2.2. TextBox.SelectAllOnClick
@@ -337,11 +357,11 @@ Sample:
              ...
              xmlns:select="http://gu.se/Select">
     <Grid select:TextBox.SelectAllOnClick="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <TextBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <TextBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.2.3. TextBox.SelectAllOnDoubleClick
@@ -356,11 +376,11 @@ Sample:
              ...
              xmlns:select="http://gu.se/Select">
     <Grid select:TextBox.SelectAllOnDoubleClick="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <TextBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <TextBox .../>
+        ...
+    </Grid>
 ```
 
 ### 5.2.4. TextBox.MoveFocusOnEnter
@@ -375,12 +395,12 @@ Sample:
              ...
              xmlns:select="http://gu.se/Select">
     <Grid select:TextBox.MoveFocusOnEnter="True"
-	      KeyboardNavigation.TabNavigation="Cycle">
-		...
-	    <numeric:DoubleBox .../>
-	    <TextBox .../>
-	    ...
-	</Grid>
+          KeyboardNavigation.TabNavigation="Cycle">
+        ...
+        <numeric:DoubleBox .../>
+        <TextBox .../>
+        ...
+    </Grid>
 ```
 
 ## 5.3 Gu.Wpf.NumericInput.Touch.TextBox
@@ -395,11 +415,11 @@ Sample:
              ...
              xmlns:touch="http://gu.se/Touch">
     <Grid touch:TextBox.ShowTouchKeyboardOnTouchEnter="True">
-		...
-	    <numeric:DoubleBox .../>
-	    <TextBox .../>
-	    ...
-	</Grid>
+        ...
+        <numeric:DoubleBox .../>
+        <TextBox .../>
+        ...
+    </Grid>
 ```
 
 # 6. Style and Template keys

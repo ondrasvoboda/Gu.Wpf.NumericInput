@@ -1,4 +1,4 @@
-﻿namespace Gu.Wpf.NumericInput
+namespace Gu.Wpf.NumericInput
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
     using System.Windows.Data;
     using System.Windows.Input;
 
-    /// <summary>Baseclass with common functionality for numeric textboxes.</summary>
+    /// <summary>Base class with common functionality for numeric textboxes.</summary>
     /// <typeparam name="T">The type of the numeric value.</typeparam>
     public abstract partial class NumericBox<T> : BaseBox, ISpinnerBox
         where T : struct, IComparable<T>, IFormattable, IConvertible, IEquatable<T>
@@ -20,7 +20,7 @@
             this.DecreaseCommand = new ManualRelayCommand(this.Decrease, this.CanDecrease);
         }
 
-        /// <summary>Gets the current value. Will throw if bad format</summary>
+        /// <summary>Gets the current value. Will throw if bad format.</summary>
         internal T? CurrentTextValue
         {
             get
@@ -212,10 +212,10 @@
         }
 
         /// <summary>
-        /// Invoked when IncreaseCommand.CanExecute() is executed
+        /// Invoked when IncreaseCommand.CanExecute() is executed.
         /// </summary>
-        /// <param name="parameter">Not used</param>
-        /// <returns>True if the value can be increased</returns>
+        /// <param name="parameter">Not used.</param>
+        /// <returns>True if the value can be increased.</returns>
         protected virtual bool CanIncrease(object parameter)
         {
             if (this.IsReadOnly || !this.IsEnabled || !this.AllowSpinners)
@@ -233,9 +233,9 @@
         }
 
         /// <summary>
-        /// Invoked when IncreaseCommand.Execute() is executed
+        /// Invoked when IncreaseCommand.Execute() is executed.
         /// </summary>
-        /// <param name="parameter">Not used</param>
+        /// <param name="parameter">Not used.</param>
         protected virtual void Increase(object parameter)
         {
             var currentValue = this.CurrentTextValue;
@@ -249,10 +249,10 @@
         }
 
         /// <summary>
-        /// Invoked when DecreaseCommand.CanExecute() is executed
+        /// Invoked when DecreaseCommand.CanExecute() is executed.
         /// </summary>
-        /// <param name="parameter">Not used</param>
-        /// <returns>True if the value can be decreased</returns>
+        /// <param name="parameter">Not used.</param>
+        /// <returns>True if the value can be decreased.</returns>
         protected virtual bool CanDecrease(object parameter)
         {
             if (this.IsReadOnly || !this.IsEnabled || !this.AllowSpinners)
@@ -270,9 +270,9 @@
         }
 
         /// <summary>
-        /// Invoked when DecreaseCommand.Execute() is executed
+        /// Invoked when DecreaseCommand.Execute() is executed.
         /// </summary>
-        /// <param name="parameter">Not used</param>
+        /// <param name="parameter">Not used.</param>
         protected virtual void Decrease(object parameter)
         {
             var currentValue = this.CurrentTextValue;
@@ -295,9 +295,21 @@
 
         protected virtual void SetIncremented(T value)
         {
-            Keyboard.Focus(this);
+            _ = Keyboard.Focus(this);
             this.SetTextAndCreateUndoAction(value.ToString(this.Culture));
             this.UpdateFormattedText(value);
+            if (this.SpinUpdateMode == SpinUpdateMode.PropertyChanged)
+            {
+                var expression = BindingOperations.GetBindingExpression(this, ValueProperty);
+                var binding = expression?.ParentBinding;
+                if (binding != null &&
+                    binding.Mode.IsEither(BindingMode.TwoWay, BindingMode.Default) &&
+                    binding.UpdateSourceTrigger.IsEither(UpdateSourceTrigger.Default, UpdateSourceTrigger.LostFocus))
+                {
+                    this.UpdateValidation();
+                    expression.UpdateSource();
+                }
+            }
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)

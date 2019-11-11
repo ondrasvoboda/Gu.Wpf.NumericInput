@@ -1,98 +1,46 @@
 ﻿namespace Gu.Wpf.NumericInput.UITests.DoubleBox
 {
-    using System;
+    using Gu.Wpf.UiAutomation;
     using NUnit.Framework;
-    using TestStack.White;
-    using TestStack.White.UIItems;
-    using TestStack.White.UIItems.WindowItems;
-    using TestStack.White.WindowsAPI;
 
-    public sealed class CultureWindowTests : IDisposable
+    public sealed class CultureWindowTests
     {
-        private readonly CultureView view;
-        private bool disposed;
+        private const string WindowName = "CultureWindow";
+        private const string ExeFileName = "Gu.Wpf.NumericInput.Demo.exe";
 
-        public CultureWindowTests()
+        [SetUp]
+        public void SetUp()
         {
-            this.view = new CultureView();
-        }
-
-        [Test]
-        public void TestCultures()
-        {
-            this.view.ValueTextBox.BulkText = "1.234";
-            this.view.Window.Keyboard.PressSpecialKey(KeyboardInput.SpecialKeys.TAB);
-            Assert.AreEqual("1,234", this.view.SpinnerDoubleBox.Text);
-            Assert.AreEqual("1,234", this.view.InheritingCultureDoubleBox.Text);
-            Assert.AreEqual("1,234", this.view.SvSeDoubleBox.Text);
-            Assert.AreEqual("1.234", this.view.EnUsDoubleBox.Text);
-            Assert.AreEqual("1,234", this.view.BoundCultureDoubleBox.Text);
-
-            this.view.CultureTextBox.Text = "en-us";
-            this.view.Window.Keyboard.PressSpecialKey(KeyboardInput.SpecialKeys.TAB);
-            Assert.AreEqual("1,234", this.view.SpinnerDoubleBox.Text);
-            Assert.AreEqual("1,234", this.view.InheritingCultureDoubleBox.Text);
-            Assert.AreEqual("1,234", this.view.SvSeDoubleBox.Text);
-            Assert.AreEqual("1.234", this.view.EnUsDoubleBox.Text);
-            Assert.AreEqual("1.234", this.view.BoundCultureDoubleBox.Text);
-        }
-
-        public void Dispose()
-        {
-            if (this.disposed)
+            using (var app = Application.AttachOrLaunch(ExeFileName, WindowName))
             {
-                return;
+                var window = app.MainWindow;
+                window.FindButton("Reset").Invoke();
+                window.WaitUntilResponsive();
             }
-
-            this.disposed = true;
-            this.view.Dispose();
         }
 
-        public sealed class CultureView : IDisposable
+        [OneTimeTearDown]
+        public void OneTimeSetUp()
         {
-            private readonly Application application;
-            private bool disposed;
+            Application.KillLaunched(ExeFileName);
+        }
 
-            public CultureView()
+        [TestCase("SpinnerDoubleBox", "1,234", "1,234")]
+        [TestCase("InheritingCultureDoubleBox", "1,234", "1,234")]
+        [TestCase("SvSeDoubleBox", "1,234", "1,234")]
+        [TestCase("EnUsDoubleBox", "1.234", "1.234")]
+        [TestCase("BoundCultureDoubleBox", "1,234", "1.234")]
+        public void Formats(string name, string expectedSv, string expectedEn)
+        {
+            using (var app = Application.AttachOrLaunch(ExeFileName, WindowName))
             {
-                var windowName = "CultureWindow";
-                this.application = Application.Launch(Info.CreateStartInfo(windowName));
-                this.Window = this.application.GetWindow(windowName);
-                this.ValueTextBox = this.Window.Get<TextBox>(nameof(this.ValueTextBox));
-                this.SpinnerDoubleBox = this.Window.Get<TextBox>(nameof(this.SpinnerDoubleBox));
-                this.InheritingCultureDoubleBox = this.Window.Get<TextBox>(nameof(this.InheritingCultureDoubleBox));
-                this.SvSeDoubleBox = this.Window.Get<TextBox>(nameof(this.SvSeDoubleBox));
-                this.EnUsDoubleBox = this.Window.Get<TextBox>(nameof(this.EnUsDoubleBox));
-                this.BoundCultureDoubleBox = this.Window.Get<TextBox>(nameof(this.BoundCultureDoubleBox));
-                this.CultureTextBox = this.Window.Get<TextBox>(nameof(this.CultureTextBox));
-            }
+                var window = app.MainWindow;
+                var textBox = window.FindTextBox(name);
+                Assert.AreEqual(expectedSv, textBox.Text);
 
-            public Window Window { get; }
-
-            public TextBox ValueTextBox { get; }
-
-            public TextBox SpinnerDoubleBox { get; }
-
-            public TextBox InheritingCultureDoubleBox { get; }
-
-            public TextBox SvSeDoubleBox { get; }
-
-            public TextBox EnUsDoubleBox { get; }
-
-            public TextBox BoundCultureDoubleBox { get; }
-
-            public TextBox CultureTextBox { get; }
-
-            public void Dispose()
-            {
-                if (this.disposed)
-                {
-                    return;
-                }
-
-                this.disposed = true;
-                this.application?.Dispose();
-                this.Window?.Dispose();
+                window.FindTextBox("CultureTextBox").Text = "en-us";
+                Keyboard.Type(Key.TAB);
+                Assert.AreEqual(expectedEn, textBox.Text);
             }
         }
     }

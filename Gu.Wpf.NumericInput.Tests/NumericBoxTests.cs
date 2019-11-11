@@ -1,4 +1,4 @@
-﻿#pragma warning disable WPF0041 // Set mutable dependency properties using SetCurrentValue.
+#pragma warning disable WPF0041 // Set mutable dependency properties using SetCurrentValue.
 namespace Gu.Wpf.NumericInput.Tests
 {
     using System;
@@ -44,9 +44,9 @@ namespace Gu.Wpf.NumericInput.Tests
             {
                 Source = this.Vm,
                 UpdateSourceTrigger = UpdateSourceTrigger.LostFocus,
-                Mode = BindingMode.TwoWay
+                Mode = BindingMode.TwoWay,
             };
-            BindingOperations.SetBinding(this.Box, NumericBox<T>.ValueProperty, binding);
+            _ = BindingOperations.SetBinding(this.Box, NumericBox<T>.ValueProperty, binding);
             this.Box.RaiseEvent(new RoutedEventArgs(FrameworkElement.LoadedEvent));
         }
 
@@ -56,6 +56,7 @@ namespace Gu.Wpf.NumericInput.Tests
             var box = this.Creator();
             Assert.AreEqual(1, box.Increment);
 
+#pragma warning disable REFL003 // The member does not exist.
             var typeMin = (T)typeof(T).GetField("MinValue").GetValue(null);
             Assert.AreEqual(typeMin, box.MinLimit);
             Assert.IsNull(box.MinValue);
@@ -63,6 +64,7 @@ namespace Gu.Wpf.NumericInput.Tests
             var typeMax = (T)typeof(T).GetField("MaxValue").GetValue(null);
             Assert.AreEqual(typeMax, box.MaxLimit);
             Assert.IsNull(box.MaxValue);
+#pragma warning restore REFL003 // The member does not exist.
         }
 
         [TestCase(9, false)]
@@ -159,6 +161,23 @@ namespace Gu.Wpf.NumericInput.Tests
             this.Box.IncreaseCommand.Execute(null);
             Assert.AreEqual(expectedText, this.Box.Text);
             Assert.AreEqual(expected, this.Box.Value);
+            Assert.AreEqual(this.Box.Parse("0"), this.Vm.Value);
+        }
+
+        [TestCase("-100", "-99", 0)]
+        [TestCase("-10", "-9", -9)]
+        [TestCase("0", "1", 1)]
+        [TestCase("9", "10", 10)]
+        [TestCase("10", "10", 10)]
+        public void IncreaseCommand_Execute_SpinUpdateMode_PropertyChanged(string text, string expectedText, T expected)
+        {
+            this.Vm.Value = this.Box.Parse("0");
+            this.Box.Text = text;
+            this.Box.SpinUpdateMode = SpinUpdateMode.PropertyChanged;
+            this.Box.IncreaseCommand.Execute(null);
+            Assert.AreEqual(expectedText, this.Box.Text);
+            Assert.AreEqual(expected, this.Box.Value);
+            Assert.AreEqual(this.Box.Parse(expected.ToString(CultureInfo.InvariantCulture)), this.Vm.Value);
         }
 
         [TestCase("9", true)]
@@ -251,6 +270,22 @@ namespace Gu.Wpf.NumericInput.Tests
             this.Box.DecreaseCommand.Execute(null);
             Assert.AreEqual(expectedText, this.Box.Text);
             Assert.AreEqual(expected, this.Box.Value);
+        }
+
+        [TestCase("100", "99", 0)]
+        [TestCase("10", "9", 9)]
+        [TestCase("0", "-1", -1)]
+        [TestCase("-9", "-10", -10)]
+        [TestCase("-10", "-10", -10)]
+        public void DecreaseCommand_Execute_SpinUpdateMode_PropertyChanged(string text, string expectedText, T expected)
+        {
+            this.Vm.Value = this.Box.Parse("0");
+            this.Box.Text = text;
+            this.Box.SpinUpdateMode = SpinUpdateMode.PropertyChanged;
+            this.Box.DecreaseCommand.Execute(null);
+            Assert.AreEqual(expectedText, this.Box.Text);
+            Assert.AreEqual(expected, this.Box.Value);
+            Assert.AreEqual(this.Box.Parse(expected.ToString(CultureInfo.InvariantCulture)), this.Vm.Value);
         }
 
         [Test]

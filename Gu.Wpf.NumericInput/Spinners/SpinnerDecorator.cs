@@ -1,4 +1,4 @@
-﻿namespace Gu.Wpf.NumericInput
+namespace Gu.Wpf.NumericInput
 {
     using System;
     using System.Collections;
@@ -9,7 +9,7 @@
     using System.Windows.Markup;
 
     /// <summary>
-    /// Add increase / decrease buttons to a <see cref="NumericBox{T}"/>
+    /// Add increase / decrease buttons to a <see cref="NumericBox{T}"/>.
     /// </summary>
     [TemplatePart(Name = IncreaseButtonName, Type = typeof(RepeatButton))]
     [TemplatePart(Name = DecreaseButtonName, Type = typeof(RepeatButton))]
@@ -20,11 +20,21 @@
         public const string DecreaseButtonName = "PART_DecreaseButton";
         public const string IncreaseButtonName = "PART_IncreaseButton";
 
+        /// <summary>Identifies the <see cref="SpinUpdateMode"/> dependency property.</summary>
+        public static readonly DependencyProperty SpinUpdateModeProperty = NumericBox.SpinUpdateModeProperty.AddOwner(
+            typeof(SpinnerDecorator),
+            new FrameworkPropertyMetadata(
+                SpinUpdateMode.AsBinding,
+                FrameworkPropertyMetadataOptions.Inherits));
+
+        /// <summary>Identifies the <see cref="Child"/> dependency property.</summary>
         public static readonly DependencyProperty ChildProperty = DependencyProperty.Register(
-            "Child",
+            nameof(Child),
             typeof(ISpinnerBox),
             typeof(SpinnerDecorator),
-            new PropertyMetadata(default(ISpinnerBox), OnChildChanged));
+            new PropertyMetadata(
+                default(ISpinnerBox),
+                (d, e) => ((SpinnerDecorator)d).OnChildChanged((ISpinnerBox)e.OldValue, (ISpinnerBox)e.NewValue)));
 
         static SpinnerDecorator()
         {
@@ -32,7 +42,20 @@
         }
 
         /// <summary>
-        /// Gets or sets the single child of a <see cref="SpinnerDecorator" />
+        /// Gets or sets a value indicating how the IncreaseCommand and DecreaseCommand behaves.
+        /// The default is AsBinding meaning the value updates using the UpdateSourceTrigger specified in the binding. Default is LostFocus.
+        /// If set to PropertyChanged the binding source will be updated at each click even if the binding has UpdateSourceTrigger = LostFocus.
+        /// </summary>
+        [Category(nameof(NumericBox))]
+        [Browsable(true)]
+        public SpinUpdateMode SpinUpdateMode
+        {
+            get => (SpinUpdateMode)this.GetValue(SpinUpdateModeProperty);
+            set => this.SetValue(SpinUpdateModeProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the single child of a <see cref="SpinnerDecorator" />.
         /// </summary>
         public ISpinnerBox Child
         {
@@ -59,9 +82,9 @@
         /// <summary>
         /// This method is used by TypeDescriptor to determine if this property should
         /// be serialized.
-        /// http://referencesource.microsoft.com/#PresentationFramework/src/Framework/System/Windows/Controls/ContentControl.cs,164
+        /// http://referencesource.microsoft.com/#PresentationFramework/src/Framework/System/Windows/Controls/ContentControl.cs,164.
         /// </summary>
-        /// <returns>True if the value should be serialized</returns>
+        /// <returns>True if the value should be serialized.</returns>
         // Lets derived classes control the serialization behavior for Content DP
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual bool ShouldSerializeContent()
@@ -69,22 +92,20 @@
             return this.ReadLocalValue(ChildProperty) != DependencyProperty.UnsetValue;
         }
 
-        /// <summary>
-        /// This method is invoked when the Child property changes.
-        /// http://referencesource.microsoft.com/#PresentationFramework/src/Framework/System/Windows/Controls/ContentControl.cs,262
-        /// </summary>
-        /// <param name="oldChild">The old value of the Child property.</param>
-        /// <param name="newChild">The new value of the Child property.</param>
-        protected virtual void OnChildChanged(BaseBox oldChild, BaseBox newChild)
+        /// <summary>This method is invoked when the <see cref="ChildProperty"/> changes.</summary>
+        /// <param name="oldChild">The old value of <see cref="ChildProperty"/>.</param>
+        /// <param name="newChild">The new value of <see cref="ChildProperty"/>.</param>
+        protected virtual void OnChildChanged(ISpinnerBox oldChild, ISpinnerBox newChild)
         {
             this.RemoveLogicalChild(oldChild);
 
-            if (newChild != null)
+            if (newChild is BaseBox newBox)
             {
-                var logicalParent = LogicalTreeHelper.GetParent(newChild);
+                var logicalParent = LogicalTreeHelper.GetParent(newBox);
                 if (logicalParent != null)
                 {
-                    if (this.TemplatedParent != null && FrameworkObject.IsEffectiveAncestor(logicalParent, this))
+                    if (this.TemplatedParent != null &&
+                        FrameworkObject.IsEffectiveAncestor(logicalParent, this))
                     {
                         // In the case that this SpinnerDecorator belongs in a parent template
                         // and represents the content of a parent, we do not wish to change
@@ -104,22 +125,16 @@
                 }
             }
 
-            // Add the new content child
             this.AddLogicalChild(newChild);
         }
 
         /// <summary>
-        /// Creates AutomationPeer (<see cref="UIElement.OnCreateAutomationPeer"/>)
+        /// Creates AutomationPeer (<see cref="UIElement.OnCreateAutomationPeer"/>).
         /// </summary>
-        /// <returns>An <see cref="UIElement.OnCreateAutomationPeer"/> for the <see cref="SpinnerDecorator"/></returns>
+        /// <returns>An <see cref="UIElement.OnCreateAutomationPeer"/> for the <see cref="SpinnerDecorator"/>.</returns>
         protected override System.Windows.Automation.Peers.AutomationPeer OnCreateAutomationPeer()
         {
             return new SpinnerDecoratorAutomationPeer(this);
-        }
-
-        private static void OnChildChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((SpinnerDecorator)d).OnChildChanged((BaseBox)e.OldValue, (BaseBox)e.NewValue);
         }
     }
 }

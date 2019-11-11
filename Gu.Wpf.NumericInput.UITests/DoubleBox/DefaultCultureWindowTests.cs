@@ -1,54 +1,26 @@
-﻿namespace Gu.Wpf.NumericInput.UITests.DoubleBox
+namespace Gu.Wpf.NumericInput.UITests.DoubleBox
 {
-    using System;
+    using Gu.Wpf.UiAutomation;
     using NUnit.Framework;
-    using TestStack.White;
-    using TestStack.White.UIItems;
-    using TestStack.White.UIItems.WindowItems;
-    using TestStack.White.WindowsAPI;
 
-    public sealed class DefaultCultureWindowTests : IDisposable
+    public class DefaultCultureWindowTests
     {
-        private readonly Application application;
-        private bool disposed;
-
-        public DefaultCultureWindowTests()
-        {
-            var windowName = "DefaultCultureWindow";
-            this.application = Application.Launch(Info.CreateStartInfo(windowName));
-            this.Window = this.application.GetWindow(windowName);
-            this.ValueTextBox = this.Window.Get<TextBox>(nameof(this.ValueTextBox));
-            this.SpinnerDoubleBox = this.Window.Get<TextBox>(nameof(this.SpinnerDoubleBox));
-            this.DoubleBox = this.Window.Get<TextBox>(nameof(this.DoubleBox));
-        }
-
-        private Window Window { get; }
-
-        private TextBox ValueTextBox { get; }
-
-        private TextBox SpinnerDoubleBox { get; }
-
-        private TextBox DoubleBox { get; }
+        private const string ExeFileName = "Gu.Wpf.NumericInput.Demo.exe";
 
         [Test]
         public void OnLoad()
         {
-            this.ValueTextBox.BulkText = "1.234";
-            this.Window.Keyboard.PressSpecialKey(KeyboardInput.SpecialKeys.TAB);
-            Assert.AreEqual("1.234", this.SpinnerDoubleBox.Text);
-            Assert.AreEqual("1.234", this.DoubleBox.Text);
-        }
-
-        public void Dispose()
-        {
-            if (this.disposed)
+            using (var application = Application.Launch(ExeFileName, "DefaultCultureWindow"))
             {
-                return;
+                var window = application.MainWindow;
+                var valueTextBox = window.FindTextBox("ValueTextBox");
+                var spinnerDoubleBox = window.FindTextBox("SpinnerDoubleBox");
+                var doubleBox = window.FindTextBox("DoubleBox");
+                valueTextBox.Enter("1.234");
+                Keyboard.Type(Key.TAB);
+                Assert.AreEqual("1.234", spinnerDoubleBox.Text);
+                Assert.AreEqual("1.234", doubleBox.Text);
             }
-
-            this.disposed = true;
-            this.application?.Dispose();
-            this.Window?.Dispose();
         }
     }
 }

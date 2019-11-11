@@ -1,4 +1,4 @@
-﻿namespace Gu.Wpf.NumericInput
+namespace Gu.Wpf.NumericInput
 {
     using System.Linq;
     using System.Windows;
@@ -62,14 +62,14 @@
                 {
                     Name = FormattedName,
                     VerticalAlignment = VerticalAlignment.Center,
-                    IsHitTestVisible = false
+                    IsHitTestVisible = false,
                 };
 
-                this.formattedBox.Bind(TextBlock.TextProperty)
-                    .OneWayTo(this.baseBox, BaseBox.FormattedTextProperty);
+                _ = this.formattedBox.Bind(TextBlock.TextProperty)
+                        .OneWayTo(this.baseBox, BaseBox.FormattedTextProperty);
 
-                this.formattedBox.Bind(FrameworkElement.MarginProperty)
-                    .OneWayTo(scrollContentPresenter, FrameworkElement.MarginProperty, FormattedTextBlockMarginConverter.Default, scrollContentPresenter);
+                _ = this.formattedBox.Bind(FrameworkElement.MarginProperty)
+                        .OneWayTo(scrollContentPresenter, FrameworkElement.MarginProperty, FormattedTextBlockMarginConverter.Default, scrollContentPresenter);
 
                 this.UpdateVisibility();
 
